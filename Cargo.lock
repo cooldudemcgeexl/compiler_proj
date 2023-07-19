@@ -5,10 +5,3 @@ version = 3
 [[package]]
 name = "compiler_proj"
 version = "0.1.0"
-dependencies = [
- "scanner",
-]
-
-[[package]]
-name = "scanner"
-version = "0.1.0"

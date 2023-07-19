@@ -1,3 +1,0 @@
-enum TokenType {
-    PLUS
-}
