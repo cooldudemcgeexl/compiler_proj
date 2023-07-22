@@ -9,9 +9,11 @@ pub enum TokenType {
     END_RW,
     L_PAREN,
     IDENTIFIER{token_str: String},
+    FUNCTION {token_str: String, arg_list: Vec<Token>, ret_type: Box<Token>},
     EOF
 }
 
+#[derive(Debug)]
 pub struct Token {
     token_type: TokenType
 }

@@ -1,6 +1,3 @@
 pub mod tokens;
+pub mod scanner_file;
 
-
-pub fn scan_file() {
-    
-}
