@@ -8,14 +8,20 @@ pub enum TokenType {
     LOOP_RW,
     END_RW,
     L_PAREN,
-    IDENTIFIER{token_str: String},
-    FUNCTION {token_str: String, arg_list: Vec<Token>, ret_type: Box<Token>},
-    EOF
+    IDENTIFIER {
+        token_str: String,
+    },
+    FUNCTION { // TODO: Decontextualize into diff enum
+        token_str: String,
+        arg_list: Vec<Token>,
+        ret_type: Box<Token>,
+    },
+    EOF,
 }
 
 #[derive(Debug)]
 pub struct Token {
-    token_type: TokenType
+    token_type: TokenType,
 }
 
 impl Token {
