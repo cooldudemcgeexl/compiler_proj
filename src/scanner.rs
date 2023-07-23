@@ -1,11 +1,15 @@
-use std::{path::Path, error::Error};
+use std::{path::Path, };
 
 pub mod scanner_file;
 pub mod tokens;
+pub mod stripper;
 
-#[derive(Debug)]
+use thiserror::Error;
+
+#[derive(Error, Debug)]
 pub enum ScannerError {
-    
+    #[error("Comment stripper encountered error")]
+    StripError(#[from] stripper::StripError)
 }
 
 pub fn scan(file_contents: String) -> Result<(),ScannerError> {
