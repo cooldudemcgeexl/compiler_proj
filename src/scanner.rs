@@ -14,10 +14,11 @@ pub enum ScannerError {
 
 pub fn scan(file_contents: String) -> Result<(),ScannerError> {
     let mut line_number = 0u32;
-    let file_chars_vec: Vec<char> = file_contents.chars().collect();
-    for (index,curr_char) in file_contents.chars().enumerate() {
+    let cleaned_file = stripper::strip_comments(file_contents)?;
+    let chars_peek_vec: Vec<char> = cleaned_file.chars().collect();
+    for (index,curr_char) in cleaned_file.chars().enumerate() {
         println!("{} - {}",index,curr_char);
-        println!("{} - {}",index,file_chars_vec[index])
+        println!("{} - {}",index,chars_peek_vec[index])
         
     } 
     Ok(())

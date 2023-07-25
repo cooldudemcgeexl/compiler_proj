@@ -10,7 +10,7 @@ PROGRAM grant IS
 	procedure if_proc : integer()
         variable i : integer;
 		procedure dummy: float()
-		// this should just hide the i of the outter environment
+		
 		variable i: float;
 		variable tst : bool;
 		begin

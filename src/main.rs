@@ -17,7 +17,7 @@ enum CompilerError {
 
 
 fn main() -> Result<(),CompilerError> {
-    let file_path =  Path::new("/home/nick/repos/compilerT/compiler_proj/tests/correct/test1.src");
+    let file_path =  Path::new("tests/correct/test1.src");
     let file_name = file_path.to_str();
     let mut file_contents = fs::read_to_string(file_path)?;
     let scanner_result = scanner::scan(file_contents)?;

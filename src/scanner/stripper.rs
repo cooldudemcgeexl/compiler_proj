@@ -3,13 +3,13 @@ use thiserror::Error;
 pub enum StripState {
     /// Stripper has not encountered a comment character yet.
     /// All characters found in this state will be pushed to the return value.
-    Normal, 
-    /// Stripper has encountered a slash. 
+    Normal,
+    /// Stripper has encountered a slash.
     /// Temporary state, as it may not indicate a comment yet.
     FirstSlash,
     /// Stripper is in a line comment.
     LineComment,
-    /// Stipper is in a block comment. 
+    /// Stipper is in a block comment.
     /// Using u8 here to represent comment nesting depth.
     /// Could be larger if we wanted to go insane. u128 anyone?
     BlockComment(u8),
@@ -17,10 +17,9 @@ pub enum StripState {
     /// Similar to first slash, but with depth level.
     /// Used to see if we're entering a nesting level.
     BlockCommentSlash(u8),
-    /// Stripper has encountered a star in a block comment. 
+    /// Stripper has encountered a star in a block comment.
     /// Either means we are increasing block comment level, or exiting a block comment level.
-    BlockCommentStar(u8)
-
+    BlockCommentStar(u8),
 }
 
 #[derive(Error, Debug)]
@@ -40,19 +39,32 @@ pub fn strip_comments(file_str: String) -> Result<String, StripError> {
 
             ('/', StripState::FirstSlash) => StripState::LineComment, // We found the second slash. We're in a line comment.
             ('*', StripState::FirstSlash) => StripState::BlockComment(1), // Found a star. Block comment.
-            (_, StripState::FirstSlash) => { // False alarm. Add the slash to the return string, and the current character.
+            (_, StripState::FirstSlash) => {
+                // False alarm. Add the slash to the return string, and the current character.
                 ret_str.push('/');
                 ret_str.push(char);
                 StripState::Normal
             }
 
-
-            ('\n', StripState::LineComment) => { // Go back to normal once we find a newline
+            ('\n', StripState::LineComment) => {
+                // Go back to normal once we find a newline
                 ret_str.push(char);
                 StripState::Normal
             }
             (_, StripState::LineComment) => StripState::LineComment,
-            _ => todo!()
+
+            ('/', StripState::BlockComment(n)) => StripState::BlockCommentSlash(n),
+            ('*',StripState::BlockComment(n)) => StripState::BlockCommentStar(n),
+            (_, StripState::BlockComment(n)) => StripState::BlockComment(n),
+
+
+            ('*', StripState::BlockCommentSlash(n)) => StripState::BlockComment(n+1),
+            (_,StripState::BlockCommentSlash(n)) => StripState::BlockComment(n),
+            
+            ('/',StripState::BlockCommentStar(1)) => StripState::Normal,
+            ('/',StripState::BlockCommentStar(n)) => StripState::BlockComment(n-1),
+            (_,StripState::BlockCommentStar(n)) => StripState::BlockComment(n),
+
         }
     }
 
