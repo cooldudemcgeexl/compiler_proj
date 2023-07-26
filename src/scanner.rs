@@ -1,56 +1,66 @@
-
 pub mod scanner_file;
-pub mod tokens;
 pub mod stripper;
+pub mod tokens;
 
 use thiserror::Error;
-use tokens::{Token, BuildToken};
+use tokens::{BuildToken, Token};
 
 #[derive(Error, Debug)]
 pub enum ScannerError {
     #[error("Comment stripper encountered error")]
-    StripError(#[from] stripper::StripError)
-
+    StripError(#[from] stripper::StripError),
 }
 
 enum ScanState {
     Normal,
-
 }
 
-pub fn scan(file_contents: String) -> Result<(),ScannerError> {
+const SINGLE_CHARS: &str = "+-*/[]()&|.;,";
+const POSSIBLE_COMPOUNDS: &str = "<>=:!";
+
+pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
     let mut line_number = 0u32;
-    let mut token_vec: Vec<Token> =  vec![];
+    let mut token_vec: Vec<Token> = vec![];
     let cleaned_file = stripper::strip_comments(file_contents)?;
     let chars_peek_vec: Vec<char> = cleaned_file.chars().collect();
     let mut current_token = BuildToken::None;
-    for (index,curr_char) in cleaned_file.chars().enumerate() {
+    for (index, curr_char) in cleaned_file.chars().enumerate() {
         current_token = match (curr_char, current_token) {
-            (' ' | '\t' | '\n', BuildToken::None) => {
-                println!("whitespace");
+            (' ' | '\t' | '\n', BuildToken::None) => BuildToken::None,
+            (curr_char, BuildToken::None) if SINGLE_CHARS.contains(curr_char) => {
+                token_vec.push(Token::from_char(curr_char));
+                BuildToken::None
+            }
+            (curr_char, BuildToken::None) if POSSIBLE_COMPOUNDS.contains(curr_char) => {
+                BuildToken::CompoundSymbol(String::from(curr_char))
+            }
+
+            ('=', BuildToken::CompoundSymbol(string)) => { 
+                let compound_chars = format!("{string}=");
+                token_vec.push(Token::from_compound_identifier(compound_chars.as_str()));
                 BuildToken::None
             },
-            _ => BuildToken::None
-        } 
-        
-    } 
-    Ok(())
-    
+            (' ' | '\t' |  '\n',BuildToken::CompoundSymbol(string)) => {
+                let string_char = string.chars().next().unwrap();
+                token_vec.push(Token::from_char(string_char));
+                BuildToken::None
+            }
+
+            _ => BuildToken::None,
+        }
+    }
+    token_vec.push(Token::EOF);
+    Ok(token_vec)
 }
 
 #[cfg(test)]
-use rstest::{rstest,fixture};
-use std::path::Path;
+use rstest::rstest;
 use std::fs;
-#[cfg(test)]
-#[fixture]
-fn iterativefib_text () -> String {
-    let file_path =  Path::new("tests/correct/test1.src");
-    fs::read_to_string(file_path).unwrap()
-}
-
+use std::path::PathBuf;
 #[cfg(test)]
 #[rstest]
-fn test_scan(iterativefib_text: String) {
-    let _ = scan(iterativefib_text);
+fn test_scan(#[files("tests/correct/*.src")] path: PathBuf) {
+    let test_file_text = fs::read_to_string(path).unwrap();
+    let token_vec = scan(test_file_text).unwrap();
+    println!("{:?}", token_vec);
 }

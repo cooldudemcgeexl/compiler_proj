@@ -1,8 +1,9 @@
+use thiserror::Error;
 
 #[derive(Debug)]
 /// Terminals from the EBNF Grammar Provided
 pub enum Token {
-    // Keywords 
+    // Keywords
     Program,
     Is,
     Begin,
@@ -28,11 +29,7 @@ pub enum Token {
     Mult,
     Div,
     GreaterThan,
-    GreaterThanEq,
     LessThan,
-    LessThanEq,
-    EqualsComp,
-    NotEquals,
     LBracket,
     RBracket,
     LParen,
@@ -42,6 +39,14 @@ pub enum Token {
     Colon,
     Period,
     Semicolon,
+    Comma,
+
+    // Symbol Pairs
+    GreaterThanEq,
+    LessThanEq,
+    EqualsComp,
+    NotEquals,
+    Assignment,
 
     // Identifiers
     Identifier(String),
@@ -50,8 +55,7 @@ pub enum Token {
     StringLiteral(String),
 
     // Special :)
-    EOF
-
+    EOF,
 }
 
 impl Token {
@@ -60,14 +64,44 @@ impl Token {
         match symbol_char {
             '+' => Token::Plus,
             '-' => Token::Minus,
+            '*' => Token::Mult,
+            '/' => Token::Div,
+            '<' => Token::LessThan,
+            '>' => Token::GreaterThan,
+            '[' => Token::LBracket,
+            ']' => Token::RBracket,
+            '(' => Token::LParen,
+            ')' => Token::RParen,
+            '&' => Token::Amp,
+            '|' => Token::Pipe,
+            ':' => Token::Colon,
+            '.' => Token::Period,
+            ';' => Token::Semicolon,
+            ',' => Token::Comma,
+            _ => todo!(),
+        }
+    }
+
+    pub fn from_compound_identifier(compound_chars: &str) -> Token {
+        match compound_chars {
+            ":=" => Token::Assignment,
+            "==" => Token::EqualsComp,
+            "!=" => Token::NotEquals,
+            "<=" => Token::LessThanEq,
+            ">=" => Token::GreaterThanEq,
             _ => todo!()
         }
     }
 }
 
+#[derive(Error, Debug)]
+enum TokenError {}
+
 #[derive(Debug)]
 pub enum BuildToken {
+    /// Not building a token
     None,
-    Symbol(String),
-    Identifier(String)
+    /// Building a multicharacter symbol (i.e. !=. ==, >=)
+    CompoundSymbol(String),
+    Identifier(String),
 }
