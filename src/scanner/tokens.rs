@@ -92,6 +92,10 @@ impl Token {
             _ => todo!()
         }
     }
+
+    pub fn num_literal_from_string(string: &str) -> Token {
+        Token::NumberLiteral(String::from(string))
+    }
 }
 
 #[derive(Error, Debug)]
@@ -104,4 +108,6 @@ pub enum BuildToken {
     /// Building a multicharacter symbol (i.e. !=. ==, >=)
     CompoundSymbol(String),
     Identifier(String),
+    StringLiteral(String),
+    NumberLiteral(String)
 }

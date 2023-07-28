@@ -46,6 +46,35 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
                 BuildToken::None
             }
 
+            ('0'..='9', BuildToken::None) => {
+                BuildToken::NumberLiteral(String::from(curr_char))
+            }
+            ('0'..='9' | '_', BuildToken::NumberLiteral(string)) => {
+                let updated_literal = format!("{string}{curr_char}");
+                BuildToken::NumberLiteral(updated_literal)
+            }
+            ('.', BuildToken::NumberLiteral(string)) if !string.contains('.') => {
+                let updated_literal = format!("{string}{curr_char}");
+                BuildToken::NumberLiteral(updated_literal)
+            }
+            ('.', BuildToken::NumberLiteral(string)) => {
+                todo!()
+            }
+
+            (curr_char, BuildToken::NumberLiteral(string)) if SINGLE_CHARS.contains(curr_char) => {
+                token_vec.push(Token::num_literal_from_string(string.as_str()));
+                token_vec.push(Token::from_char(curr_char));
+                BuildToken::None
+            } 
+            (curr_char, BuildToken::NumberLiteral(string)) if POSSIBLE_COMPOUNDS.contains(curr_char) => {
+                token_vec.push(Token::num_literal_from_string(string.as_str()));
+                BuildToken::CompoundSymbol(String::from(curr_char))
+            } 
+            (' ' | '\t' | '\n', BuildToken::NumberLiteral(string)) => {
+                token_vec.push(Token::num_literal_from_string(string.as_str()));
+                BuildToken::None
+            }
+
             _ => BuildToken::None,
         }
     }
@@ -60,7 +89,9 @@ use std::path::PathBuf;
 #[cfg(test)]
 #[rstest]
 fn test_scan(#[files("tests/correct/*.src")] path: PathBuf) {
-    let test_file_text = fs::read_to_string(path).unwrap();
+    let res_path = path.as_path();
+    let file_name = path.file_name().unwrap().to_str().unwrap();
+    let test_file_text = fs::read_to_string(res_path).unwrap();
     let token_vec = scan(test_file_text).unwrap();
-    println!("{:?}", token_vec);
+    println!("{:?}: {:?}\n", file_name, token_vec);
 }
