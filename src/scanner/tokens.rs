@@ -50,7 +50,6 @@ pub enum Token {
 
     // Identifiers
     Identifier(String),
-    Function(String),
     NumberLiteral(String),
     StringLiteral(String),
 
@@ -93,9 +92,35 @@ impl Token {
         }
     }
 
-    pub fn num_literal_from_string(string: &str) -> Token {
-        Token::NumberLiteral(String::from(string))
+    pub fn num_literal_from_string(string: String) -> Token {
+        Token::NumberLiteral(string.to_lowercase())
     }
+    pub fn string_literal_from_string(string: String) -> Token {
+        Token::StringLiteral(string.to_lowercase())
+    }
+
+    pub fn from_string(string: String) -> Token {
+        match string.to_lowercase().as_str() {
+            "program" => Token::Program,
+            "is" => Token::Is,
+            "begin" => Token::Begin,
+            "end" => Token::End,
+            "global" => Token::Global,
+            "procedure" => Token::Procedure,
+            "variable" => Token::Variable,
+            "for" => Token::For,
+            "not" => Token::Not,
+            "if" => Token::If,
+            "then" => Token::Then,
+            "else" => Token::Else,
+            "integer" => Token::Integer,
+            "float" => Token::Float,
+            "string" => Token::String,
+            "bool" => Token::Bool,
+            _ => Token::Identifier(string)
+        }
+    }
+
 }
 
 #[derive(Error, Debug)]
