@@ -81,25 +81,14 @@ enum StripTestError {
 }
 #[cfg(test)]
 use rstest::rstest;
-use std::path::Path;
+use std::path::{PathBuf, Path};
 use std::{fs, io};
 #[cfg(test)]
 #[rstest]
-#[case("iterativeFib.src")]
-#[case("logicals.src")]
-#[case("math.src")]
-#[case("multipleProcs.src")]
-#[case("recursiveFib.src")]
-#[case("source.src")]
-#[case("test_heap.src")]
-#[case("test_program_minimal.src")]
-#[case("test1.src")]
-#[case("test1b.src")]
-#[case("test2.src")]
-fn strip_comment_test(#[case] file_name: String) -> Result<(), StripTestError> {
-    let source_name = format!("tests/correct/{file_name}");
-    let source_file = Path::new(source_name.as_str());
 
+fn strip_comment_test(#[files("tests/correct/*.src")] source_file: PathBuf) -> Result<(), StripTestError> {
+    
+    let file_name = source_file.file_name().unwrap().to_str().unwrap();
     let stripped_name = format!("tests/comment_stripped/{file_name}");
     let stripped_file = Path::new(stripped_name.as_str());
 
