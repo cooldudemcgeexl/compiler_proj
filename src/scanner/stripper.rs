@@ -23,7 +23,10 @@ pub enum StripState {
 }
 
 #[derive(Error, Debug)]
-pub enum StripError {}
+pub enum StripError {
+    #[error("Reached max block comment nesting depth. Why?")]
+    MaxCommentDepth
+}
 
 pub fn strip_comments(file_str: String) -> Result<String, StripError> {
     let mut ret_str = String::with_capacity(file_str.capacity()); // Make a blank string with the same size as the original
@@ -54,6 +57,7 @@ pub fn strip_comments(file_str: String) -> Result<String, StripError> {
             (_, StripState::LineComment) => StripState::LineComment,
 
             ('/', StripState::BlockComment(n)) => StripState::BlockCommentSlash(n),
+            ('*',StripState::BlockComment(u8::MAX)) => return Err(StripError::MaxCommentDepth),
             ('*',StripState::BlockComment(n)) => StripState::BlockCommentStar(n),
             (_, StripState::BlockComment(n)) => StripState::BlockComment(n),
 

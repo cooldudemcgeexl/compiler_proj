@@ -1,16 +1,15 @@
 pub mod stripper;
 
-
-use thiserror::Error;
 use crate::tokens::{BuildToken, Token};
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ScannerError {
-    #[error("Comment stripper encountered error")]
+    #[error(transparent)]
     StripError(#[from] stripper::StripError),
+    #[error("Encountered invalid numeric literal.")]
+    NumLitError,
 }
-
-
 
 const SINGLE_CHARS: &str = "+-*/[]()&|.;,";
 const POSSIBLE_COMPOUNDS: &str = "<>=:!";
@@ -51,8 +50,8 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
                 let updated_literal = format!("{string}{curr_char}");
                 BuildToken::NumberLiteral(updated_literal)
             }
-            ('.', BuildToken::NumberLiteral(string)) => {
-                todo!()
+            ('.', BuildToken::NumberLiteral(string)) if string.contains('.') => {
+                return Err(ScannerError::NumLitError);
             }
 
             (curr_char, BuildToken::NumberLiteral(string)) if SINGLE_CHARS.contains(curr_char) => {
