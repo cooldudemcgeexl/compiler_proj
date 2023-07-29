@@ -9,7 +9,7 @@ pub enum ParserError {
     EarlyEOF,
     #[error("Encountered EOF token. Expected token: {0:?}")]
     UnexpectedEOF(Token),
-    #[error("Encountered token: {0:?} Expected EOF.")],
+    #[error("Encountered token: {0:?} Expected EOF.")]
     ExpectedEOF(Token),
     #[error("Encountered token: {0} Expected token: {1:?}")]
     UnexpectedToken(String, Token),
