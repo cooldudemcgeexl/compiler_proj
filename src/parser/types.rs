@@ -14,3 +14,11 @@ pub struct ArrayBound {
 pub struct Number {
     pub literal_string: String
 }
+
+pub struct StringNode {
+    pub literal_string: String
+}
+
+pub struct Identifier {
+    pub identifier_string: String
+}

@@ -1,6 +1,7 @@
-use super::declaratons::Declaration; 
-use super::types::TypeMark;
-
+use super::declaratons::{Declaration, VariableDeclaration}; 
+use super::expression::Expression;
+use super::types::{TypeMark, Identifier};
+use super::statement::Statement;
 
 pub struct ProcedureHeader {
     pub identifier: String,
@@ -10,11 +11,22 @@ pub struct ProcedureHeader {
 
 pub struct ProcedureBody {
     pub declarations: Vec<Declaration>,
-    pub statements: ()
+    pub statements: Option<Vec<Statement>>
 
 }
 
 pub struct ParamList { 
-    
+    pub param_list: Vec<Parameter>
 }
 
+pub struct Parameter {
+    pub variable_declaration: VariableDeclaration
+}
+pub struct ProcedureCall {
+    pub identifier: Identifier,
+    pub arg_list: Option<ArgumentList>
+}
+
+pub struct ArgumentList {
+    pub expr_list: Vec<Expression>
+}

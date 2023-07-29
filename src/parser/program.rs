@@ -1,4 +1,4 @@
-use super::declaratons::Declaration;
+use super::{declaratons::Declaration, statement::Statement};
 
 pub struct ProgramStruct {
     program_header: ProgramHeader,
@@ -11,5 +11,5 @@ pub struct ProgramHeader {
 
 pub struct ProgramBody {
     declarations: Vec<Declaration>,
-    statements: (),
+    statements: Vec<Statement>,
 }
