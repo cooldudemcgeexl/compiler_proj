@@ -88,7 +88,7 @@ impl Token {
             "!=" => Token::NotEquals,
             "<=" => Token::LessThanEq,
             ">=" => Token::GreaterThanEq,
-            _ => todo!()
+            _ => todo!(),
         }
     }
 
@@ -117,10 +117,9 @@ impl Token {
             "float" => Token::Float,
             "string" => Token::String,
             "bool" => Token::Bool,
-            _ => Token::Identifier(string)
+            _ => Token::Identifier(string),
         }
     }
-
 }
 
 #[derive(Error, Debug)]
@@ -134,5 +133,5 @@ pub enum BuildToken {
     CompoundSymbol(String),
     Identifier(String),
     StringLiteral(String),
-    NumberLiteral(String)
+    NumberLiteral(String),
 }

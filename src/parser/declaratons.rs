@@ -1,20 +1,18 @@
-use super::types::{TypeMark, ArrayBound};
-use super::procedure::{ProcedureHeader,ProcedureBody};
+use super::procedure::{ProcedureBody, ProcedureHeader};
+use super::types::{ArrayBound, TypeMark};
 
 pub enum Declaration {
     Procedure(ProcedureDeclaration),
-    Variable(VariableDeclaration)
+    Variable(VariableDeclaration),
 }
 
 pub struct ProcedureDeclaration {
     pub procedure_header: ProcedureHeader,
-    pub procedure_body: ProcedureBody
+    pub procedure_body: ProcedureBody,
 }
 
-pub struct VariableDeclaration { 
+pub struct VariableDeclaration {
     pub identifier: String,
     pub type_mark: TypeMark,
-    pub array_bound: ArrayBound
+    pub array_bound: ArrayBound,
 }
-
-
