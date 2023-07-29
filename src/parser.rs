@@ -8,6 +8,7 @@ mod procedure;
 mod program;
 mod statement;
 mod types;
+mod utils;
 
 #[derive(Error, Debug)]
 pub enum ParserError {}

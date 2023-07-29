@@ -7,9 +7,9 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 enum CompilerError {
-    #[error("IO error encountered")]
+    #[error(transparent)]
     FileError(#[from] io::Error),
-    #[error("Scanner encountered error")]
+    #[error(transparent)]
     ScannerError(#[from] scanner::ScannerError),
 }
 

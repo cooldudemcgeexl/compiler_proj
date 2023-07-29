@@ -1,6 +1,6 @@
 pub mod stripper;
 
-use crate::tokens::{BuildToken, Token};
+use crate::tokens::{BuildToken, Token, TokenError};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -9,6 +9,8 @@ pub enum ScannerError {
     StripError(#[from] stripper::StripError),
     #[error("Encountered invalid numeric literal.")]
     NumLitError,
+    #[error(transparent)]
+    TokenError(#[from] TokenError),
 }
 
 const SINGLE_CHARS: &str = "+-*/[]()&|.;,";
@@ -23,7 +25,7 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
         current_token = match (curr_char, current_token) {
             (' ' | '\t' | '\n', BuildToken::None) => BuildToken::None,
             (curr_char, BuildToken::None) if SINGLE_CHARS.contains(curr_char) => {
-                token_vec.push(Token::from_char(curr_char));
+                token_vec.push(Token::from_char(curr_char)?);
                 BuildToken::None
             }
             (curr_char, BuildToken::None) if POSSIBLE_COMPOUNDS.contains(curr_char) => {
@@ -32,12 +34,12 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
 
             ('=', BuildToken::CompoundSymbol(string)) => {
                 let compound_chars = format!("{string}=");
-                token_vec.push(Token::from_compound_identifier(compound_chars.as_str()));
+                token_vec.push(Token::from_compound_identifier(compound_chars.as_str())?);
                 BuildToken::None
             }
             (' ' | '\t' | '\n', BuildToken::CompoundSymbol(string)) => {
                 let string_char = string.chars().next().unwrap();
-                token_vec.push(Token::from_char(string_char));
+                token_vec.push(Token::from_char(string_char)?);
                 BuildToken::None
             }
 
@@ -56,7 +58,7 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
 
             (curr_char, BuildToken::NumberLiteral(string)) if SINGLE_CHARS.contains(curr_char) => {
                 token_vec.push(Token::num_literal_from_string(string));
-                token_vec.push(Token::from_char(curr_char));
+                token_vec.push(Token::from_char(curr_char)?);
                 BuildToken::None
             }
             (curr_char, BuildToken::NumberLiteral(string))
@@ -87,7 +89,7 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
             }
             (curr_char, BuildToken::Identifier(string)) if SINGLE_CHARS.contains(curr_char) => {
                 token_vec.push(Token::from_string(string));
-                token_vec.push(Token::from_char(curr_char));
+                token_vec.push(Token::from_char(curr_char)?);
                 BuildToken::None
             }
             (curr_char, BuildToken::Identifier(string))
