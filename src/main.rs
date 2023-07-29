@@ -2,9 +2,11 @@
 
 
 mod scanner;
-mod structs;
-use std::{path::{PathBuf, Path}, fs, io};
+mod parser;
+mod tokens;
+use std::{path::Path, fs, io};
 use thiserror::Error;
+use std::collections::VecDeque;
 
 
 #[derive(Error, Debug)]
@@ -21,5 +23,7 @@ fn main() -> Result<(),CompilerError> {
     let file_name = file_path.to_str();
     let mut file_contents = fs::read_to_string(file_path)?;
     let scanner_result = scanner::scan(file_contents)?;
+    let token_deque = VecDeque::from(scanner_result);
+    
     Ok(())
 }

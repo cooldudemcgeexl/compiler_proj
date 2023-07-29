@@ -1,9 +1,8 @@
-pub mod scanner_file;
 pub mod stripper;
-pub mod tokens;
+
 
 use thiserror::Error;
-use tokens::{BuildToken, Token};
+use crate::tokens::{BuildToken, Token};
 
 #[derive(Error, Debug)]
 pub enum ScannerError {
@@ -11,9 +10,7 @@ pub enum ScannerError {
     StripError(#[from] stripper::StripError),
 }
 
-enum ScanState {
-    Normal,
-}
+
 
 const SINGLE_CHARS: &str = "+-*/[]()&|.;,";
 const POSSIBLE_COMPOUNDS: &str = "<>=:!";
@@ -22,7 +19,6 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
     let mut line_number = 0u32;
     let mut token_vec: Vec<Token> = vec![];
     let cleaned_file = stripper::strip_comments(file_contents)?;
-    let chars_peek_vec: Vec<char> = cleaned_file.chars().collect();
     let mut current_token = BuildToken::None;
     for (index, curr_char) in cleaned_file.chars().enumerate() {
         current_token = match (curr_char, current_token) {
