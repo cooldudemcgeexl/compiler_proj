@@ -32,7 +32,7 @@ pub struct ArrayBound {
 
 impl ParseTokens for ArrayBound {
     fn parse(tokens: &mut super::utils::TokenQueue) -> Result<Self, ParserError> {
-        todo!()
+        Number::parse(tokens).map(|token| ArrayBound { number: token })
     }
 }
 
@@ -60,6 +60,7 @@ impl ParseTokens for Number {
 pub struct StringNode {
     pub literal_string: String,
 }
+
 #[derive(Debug)]
 pub struct Identifier {
     pub identifier_string: String,

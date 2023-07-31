@@ -16,6 +16,7 @@ pub enum Token {
     If,
     Then,
     Else,
+    Return,
 
     // Types
     Integer,
@@ -119,6 +120,7 @@ impl Token {
             "float" => Token::Float,
             "string" => Token::String,
             "bool" => Token::Bool,
+            "return" => Token::Return,
             _ => Token::Identifier(string),
         }
     }

@@ -1,11 +1,19 @@
 use super::procedure::ProcedureCall;
+use super::traits::ParseTokens;
 use super::types::*;
+use super::utils::{ParserError, TokenQueue};
 
 #[derive(Debug)]
 pub enum Expression {
     AndExp(AndExpression),
     OrExp(OrExpression),
     BasicExp(BasicExp),
+}
+
+impl ParseTokens for Expression {
+    fn parse(tokens: &mut TokenQueue) -> Result<Self, ParserError> {
+        todo!()
+    }
 }
 
 #[derive(Debug)]

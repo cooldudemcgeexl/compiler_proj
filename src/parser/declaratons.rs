@@ -1,6 +1,6 @@
 use super::procedure::{ProcedureBody, ProcedureHeader};
 use super::traits::ParseTokens;
-use super::types::{ArrayBound, Identifier, TypeMark};
+use super::types::{ArrayBound, TypeMark};
 use super::utils::ParserError;
 use crate::tokens::Token;
 
@@ -14,8 +14,14 @@ impl ParseTokens for Declaration {
     fn parse(tokens: &mut super::utils::TokenQueue) -> Result<Self, super::utils::ParserError> {
         let is_global = tokens.consume_as_bool(&Token::Global);
         match tokens.peek_front() {
-            Some(Token::Procedure) => Ok(Declaration::Procedure(is_global, todo!())),
-            Some(Token::Variable) => Ok(Declaration::Variable(is_global, todo!())),
+            Some(Token::Procedure) => Ok(Declaration::Procedure(
+                is_global,
+                ProcedureDeclaration::parse(tokens)?,
+            )),
+            Some(Token::Variable) => Ok(Declaration::Variable(
+                is_global,
+                VariableDeclaration::parse(tokens)?,
+            )),
             Some(token) => Err(ParserError::UnexpectedToken(
                 String::from("Declaration"),
                 token.clone(),
@@ -32,8 +38,8 @@ pub struct ProcedureDeclaration {
 
 impl ParseTokens for ProcedureDeclaration {
     fn parse(tokens: &mut super::utils::TokenQueue) -> Result<Self, ParserError> {
-        let proc_header = todo!();
-        let proc_body = todo!();
+        let proc_header = ProcedureHeader::parse(tokens)?;
+        let proc_body = ProcedureBody::parse(tokens)?;
         Ok(ProcedureDeclaration {
             procedure_header: proc_header,
             procedure_body: proc_body,
@@ -50,7 +56,7 @@ pub struct VariableDeclaration {
 impl ParseTokens for VariableDeclaration {
     fn parse(tokens: &mut super::utils::TokenQueue) -> Result<Self, ParserError> {
         tokens.consume_expected(Token::Variable)?;
-        let Identifier = tokens.consume_identifier()?;
+        let identifier = tokens.consume_identifier()?;
         tokens.consume_expected(Token::Colon)?;
         let type_mark = TypeMark::parse(tokens)?;
 
@@ -64,7 +70,7 @@ impl ParseTokens for VariableDeclaration {
         };
 
         Ok(VariableDeclaration {
-            identifier: Identifier,
+            identifier: identifier,
             type_mark: type_mark,
             array_bound: array_bound,
         })

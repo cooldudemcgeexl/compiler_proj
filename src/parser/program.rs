@@ -1,5 +1,5 @@
 use super::traits::ParseTokens;
-use super::{declaratons, utils::*};
+use super::utils::*;
 use super::{declaratons::Declaration, statement::Statement};
 use crate::tokens::Token;
 
@@ -39,9 +39,7 @@ impl ParseTokens for ProgramHeader {
         let header_identifier = tokens.consume_identifier()?;
         tokens.consume_expected(Token::Is)?;
 
-        Ok(ProgramHeader {
-            header_identifier: header_identifier,
-        })
+        Ok(ProgramHeader { header_identifier })
     }
 }
 
@@ -65,7 +63,7 @@ impl ParseTokens for ProgramBody {
                     "Identifier, Begin",
                 )));
             } else {
-                todo!();
+                declaratons.push(Declaration::parse(tokens)?);
                 tokens.consume_expected(Token::Semicolon)?;
             }
         }
