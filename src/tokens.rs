@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Terminals from the EBNF Grammar Provided
 pub enum Token {
     // Keywords

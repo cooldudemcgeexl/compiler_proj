@@ -4,7 +4,8 @@ use thiserror::Error;
 
 use self::{
     program::ProgramStruct,
-    utils::{ParseTokens, ParserError, TokenQueue},
+    traits::ParseTokens,
+    utils::{ParserError, TokenQueue},
 };
 
 mod declaratons;
@@ -12,6 +13,7 @@ mod expression;
 mod procedure;
 mod program;
 mod statement;
+pub mod traits;
 mod types;
 pub mod utils;
 

@@ -8,12 +8,15 @@ pub enum ParserError {
     #[error("Encountered EOF token before exhausting token queue.")]
     EarlyEOF,
     #[error("Encountered EOF token. Expected token: {0:?}")]
-    UnexpectedEOF(Token),
+    UnexpectedEOFToken(Token),
+    #[error("Encountered EOF. Expected the following tokens: {0}")]
+    UnexpectedEOF(String),
     #[error("Encountered token: {0:?} Expected EOF.")]
     ExpectedEOF(Token),
-    #[error("Encountered token: {0} Expected token: {1:?}")]
+    #[error("Expected token: {0} Encountered token: {1:?}")]
     UnexpectedToken(String, Token),
 }
+#[derive(Debug)]
 pub struct TokenQueue {
     tokens: VecDeque<Token>,
 }
@@ -31,7 +34,7 @@ impl TokenQueue {
         self.tokens.push_front(value)
     }
 
-    pub fn front(&self) -> Option<&Token> {
+    pub fn peek_front(&self) -> Option<&Token> {
         self.tokens.front()
     }
 
@@ -52,14 +55,32 @@ impl TokenQueue {
             }
             return Ok(());
         }
-        Err(ParserError::UnexpectedEOF(expected))
+        Err(ParserError::UnexpectedEOFToken(expected))
     }
-}
 
-pub trait ParseTokens: Sized {
-    fn parse(tokens: &mut TokenQueue) -> Result<Self, ParserError>;
-}
+    /// Need a separate function for consuming identifiers, since we need to take the data out of them.
+    pub fn consume_identifier(&mut self) -> Result<String, ParserError> {
+        match self.pop_front() {
+            Some(Token::Identifier(ident)) => Ok(ident),
+            Some(token) => Err(ParserError::UnexpectedToken(
+                String::from("Identifier"),
+                token,
+            )),
+            _ => Err(ParserError::UnexpectedEOFToken(Token::Identifier(
+                String::from("Identifier"),
+            ))),
+        }
+    }
 
-pub trait CanParse {
-    fn can_parse(tokens: &mut TokenQueue) -> bool;
+    /// Peeks the next token. If it matches, consumes the token and returns true.
+    /// Otherwise, false.
+    pub fn consume_as_bool(&mut self, expected: &Token) -> bool {
+        match self.peek_front() {
+            Some(token) if token == expected => {
+                self.pop_front();
+                true
+            }
+            _ => false,
+        }
+    }
 }
