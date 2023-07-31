@@ -83,7 +83,7 @@ impl ParseTokens for ProcedureBody {
             } else if let None = next_token {
                 return Err(ParserError::UnexpectedEOF(String::from("Identifier, End")));
             } else {
-                todo!();
+                statements.push(Statement::parse(tokens)?);
                 tokens.consume_expected(Token::Semicolon)?;
             }
         }

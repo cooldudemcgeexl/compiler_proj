@@ -17,6 +17,8 @@ pub enum Token {
     Then,
     Else,
     Return,
+    True,
+    False,
 
     // Types
     Integer,
@@ -121,7 +123,9 @@ impl Token {
             "string" => Token::String,
             "bool" => Token::Bool,
             "return" => Token::Return,
-            _ => Token::Identifier(string),
+            "true" => Token::True,
+            "false" => Token::False,
+            _ => Token::Identifier(string.to_lowercase()),
         }
     }
 }
