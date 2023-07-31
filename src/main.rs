@@ -42,3 +42,11 @@ fn compile_test_correct(
 ) -> Result<(), CompilerError> {
     compile_file(source_file.as_path())
 }
+
+#[cfg(test)]
+#[rstest]
+fn compile_test_incorrect(
+    #[files("tests/incorrect/*.src")] source_file: PathBuf,
+) -> Result<(), CompilerError> {
+    compile_file(source_file.as_path())
+}
