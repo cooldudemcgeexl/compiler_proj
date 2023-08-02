@@ -1,6 +1,6 @@
 use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 /// Terminals from the EBNF Grammar Provided
 pub enum Token {
     // Keywords
@@ -16,6 +16,9 @@ pub enum Token {
     If,
     Then,
     Else,
+    Return,
+    True,
+    False,
 
     // Types
     Integer,
@@ -59,8 +62,8 @@ pub enum Token {
 
 impl Token {
     /// Returns the token for single character tokens
-    pub fn from_char(symbol_char: char) -> Token {
-        match symbol_char {
+    pub fn from_char(symbol_char: char) -> Result<Token, TokenError> {
+        let matched_token = match symbol_char {
             '+' => Token::Plus,
             '-' => Token::Minus,
             '*' => Token::Mult,
@@ -77,26 +80,28 @@ impl Token {
             '.' => Token::Period,
             ';' => Token::Semicolon,
             ',' => Token::Comma,
-            _ => todo!(),
-        }
+            _ => return Err(TokenError::SingleTokenError(symbol_char)),
+        };
+        Ok(matched_token)
     }
 
-    pub fn from_compound_identifier(compound_chars: &str) -> Token {
-        match compound_chars {
+    pub fn from_compound_identifier(compound_chars: &str) -> Result<Token, TokenError> {
+        let compound_token = match compound_chars {
             ":=" => Token::Assignment,
             "==" => Token::EqualsComp,
             "!=" => Token::NotEquals,
             "<=" => Token::LessThanEq,
             ">=" => Token::GreaterThanEq,
-            _ => todo!()
-        }
+            _ => return Err(TokenError::CompoundTokenError(String::from(compound_chars))),
+        };
+        Ok(compound_token)
     }
 
     pub fn num_literal_from_string(string: String) -> Token {
         Token::NumberLiteral(string.to_lowercase())
     }
     pub fn string_literal_from_string(string: String) -> Token {
-        Token::StringLiteral(string.to_lowercase())
+        Token::StringLiteral(string)
     }
 
     pub fn from_string(string: String) -> Token {
@@ -117,14 +122,21 @@ impl Token {
             "float" => Token::Float,
             "string" => Token::String,
             "bool" => Token::Bool,
-            _ => Token::Identifier(string)
+            "return" => Token::Return,
+            "true" => Token::True,
+            "false" => Token::False,
+            _ => Token::Identifier(string.to_lowercase()),
         }
     }
-
 }
 
 #[derive(Error, Debug)]
-enum TokenError {}
+pub enum TokenError {
+    #[error("Unrecognized token {0}")]
+    SingleTokenError(char),
+    #[error("Unreognized compount token {0}")]
+    CompoundTokenError(String),
+}
 
 #[derive(Debug)]
 pub enum BuildToken {
@@ -134,5 +146,5 @@ pub enum BuildToken {
     CompoundSymbol(String),
     Identifier(String),
     StringLiteral(String),
-    NumberLiteral(String)
+    NumberLiteral(String),
 }
