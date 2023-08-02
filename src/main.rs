@@ -1,5 +1,6 @@
 mod parser;
 mod scanner;
+mod semantics;
 mod tokens;
 use std::collections::VecDeque;
 use std::{fs, io, path::Path};
