@@ -14,7 +14,9 @@ impl ParseTokens for ProgramStruct {
         let header = ProgramHeader::parse(tokens)?;
         let body = ProgramBody::parse(tokens)?;
 
-        tokens.consume_expected(Token::Period)?;
+        tokens
+            .consume_expected(Token::Period)
+            .unwrap_or_else(|_| println!("WARNING: Missing terminating period"));
         tokens.consume_expected(Token::EOF)?;
 
         if let Some(next_token) = tokens.pop_front() {

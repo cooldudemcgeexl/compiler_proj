@@ -43,6 +43,9 @@ impl TokenQueue {
     }
 
     pub fn consume_expected(&mut self, expected: Token) -> Result<(), ParserError> {
+        if self.remaining() == 0 && expected == Token::EOF {
+            return Ok(());
+        }
         if let Some(token) = self.pop_front() {
             if self.remaining() > 0 && token == Token::EOF {
                 return Err(ParserError::EarlyEOF);

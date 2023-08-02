@@ -11,10 +11,12 @@ pub enum ScannerError {
     NumLitError,
     #[error(transparent)]
     TokenError(#[from] TokenError),
+    #[error("Invalid character.")]
+    InvalidCharacterError,
 }
 
 const SINGLE_CHARS: &str = "+-*/[]()&|.;,";
-const POSSIBLE_COMPOUNDS: &str = "<>=:!";
+const POSSIBLE_COMPOUNDS: &str = "<>=!:";
 
 pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
     let mut line_number = 0u32;
@@ -37,10 +39,21 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
                 token_vec.push(Token::from_compound_identifier(compound_chars.as_str())?);
                 BuildToken::None
             }
+
             (' ' | '\t' | '\n', BuildToken::CompoundSymbol(string)) => {
                 let string_char = string.chars().next().unwrap();
                 token_vec.push(Token::from_char(string_char)?);
                 BuildToken::None
+            }
+
+            (match_char, BuildToken::CompoundSymbol(string)) if string == String::from(":") => {
+                token_vec.push(Token::from_char(':')?);
+                match match_char {
+                    '0'..='9' => BuildToken::NumberLiteral(String::from(match_char)),
+                    '"' => BuildToken::StringLiteral(String::from("")),
+                    'a'..='z' | 'A'..='Z' => BuildToken::Identifier(String::from(match_char)),
+                    _ => return Err(ScannerError::InvalidCharacterError),
+                }
             }
 
             ('0'..='9', BuildToken::None) => BuildToken::NumberLiteral(String::from(curr_char)),
@@ -102,7 +115,10 @@ pub fn scan(file_contents: String) -> Result<Vec<Token>, ScannerError> {
                 token_vec.push(Token::from_string(string));
                 BuildToken::None
             }
-
+            (_, BuildToken::Identifier(string)) => {
+                token_vec.push(Token::from_string(string));
+                BuildToken::None
+            }
             _ => BuildToken::None,
         }
     }

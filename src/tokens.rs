@@ -101,7 +101,7 @@ impl Token {
         Token::NumberLiteral(string.to_lowercase())
     }
     pub fn string_literal_from_string(string: String) -> Token {
-        Token::StringLiteral(string.to_lowercase())
+        Token::StringLiteral(string)
     }
 
     pub fn from_string(string: String) -> Token {

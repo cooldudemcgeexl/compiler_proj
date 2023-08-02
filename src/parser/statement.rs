@@ -90,7 +90,6 @@ impl ParseTokens for IfStatement {
 
         // Else block
         if else_exists {
-            tokens.pop_front();
             while Statement::can_parse(tokens) {
                 else_block.push(Statement::parse(tokens)?);
                 tokens.consume_expected(Token::Semicolon)?;
