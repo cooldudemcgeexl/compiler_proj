@@ -1,11 +1,13 @@
 use thiserror::Error;
 
 pub mod context;
+pub mod procedure;
 pub mod traits;
 pub mod value;
 
 use crate::parser::program::ProgramStruct;
 
+use self::context::{Context, ScopeContext};
 use self::value::Type;
 
 #[derive(Debug, Error)]
@@ -23,13 +25,14 @@ pub enum SemanticsError {
 #[derive(Debug)]
 pub struct AnalyzedProgram {
     pub name: String,
-    pub declarations: (),
-    pub procedures: (),
+    pub declarations: ScopeContext,
+    pub procedures: Vec<()>,
     pub block: (),
 }
 
 impl AnalyzedProgram {
     pub fn analyze(val: ProgramStruct) -> Result<Self, SemanticsError> {
+        let mut context = Context::new();
         todo!()
     }
 }
