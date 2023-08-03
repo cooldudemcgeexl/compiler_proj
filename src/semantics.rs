@@ -23,6 +23,8 @@ pub enum SemanticsError {
     OutOfScope,
     #[error("Attempted to index a non-array object {0}.")]
     IndexOnNonArray(String),
+    #[error("Encountered return when none was expected.")]
+    UnexpectedReturn,
 }
 
 #[derive(Debug)]
