@@ -14,6 +14,10 @@ pub enum SemanticsError {
     TypeMismatch(Type, Type),
     #[error("Variable {0} redeclared within local scope.")]
     Redeclared(String),
+    #[error("Undeclared reference {0}")]
+    UndefinedRef(String),
+    #[error("Reached end of scope")]
+    OutOfScope,
 }
 
 #[derive(Debug)]
