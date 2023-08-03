@@ -6,7 +6,7 @@ pub trait Analyze<T> {
     fn analyze(self, context: &mut Context, scope: &Scope) -> Result<T, SemanticsError>;
 }
 
-pub trait AnalyzeExpressing<T>: Sized {
+pub trait AnalyzeExpression<T>: Sized {
     fn analyze_expression(value: T, context: &mut Context) -> Result<Self, SemanticsError>;
     fn get_type(&self, context: &Context) -> Result<Type, SemanticsError>;
 }

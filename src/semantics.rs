@@ -1,7 +1,8 @@
 use thiserror::Error;
 
 pub mod context;
-pub mod procedure;
+pub mod expression;
+pub mod statement;
 pub mod traits;
 pub mod value;
 
@@ -20,6 +21,8 @@ pub enum SemanticsError {
     UndefinedRef(String),
     #[error("Reached end of scope")]
     OutOfScope,
+    #[error("Attempted to index a non-array object {0}.")]
+    IndexOnNonArray(String),
 }
 
 #[derive(Debug)]
