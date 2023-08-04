@@ -1,11 +1,13 @@
 use thiserror::Error;
 
 use crate::parser::declaratons::ProcedureDeclaration;
-use crate::parser::procedure::ParamList;
+use crate::parser::procedure::{ParamList, ProcedureCall};
+use crate::parser::types::Identifier;
 
 use super::context::{Context, Scope, ScopeContext};
+use super::expression::AnalyzedExpression;
 use super::statement::AnalyzedBlock;
-use super::traits::Analyze;
+use super::traits::{Analyze, AnalyzeExpression};
 use super::value::{NamedValue, ProcedureSignature, Type};
 use super::SemanticsError;
 
@@ -61,5 +63,58 @@ impl Analyze<AnalyzedProcedure> for ProcedureDeclaration {
             procedures,
             block,
         })
+    }
+}
+
+#[derive(Debug)]
+pub struct AnalyzedProcedureCall {
+    pub identifier: String,
+    pub arg_list: Vec<AnalyzedExpression>,
+    pub ret_type: Type,
+}
+
+impl AnalyzeExpression<ProcedureCall> for AnalyzedProcedureCall {
+    fn analyze_expression(
+        value: ProcedureCall,
+        context: &mut Context,
+    ) -> Result<Self, SemanticsError> {
+        let proc_sig = context
+            .get_procedure_signature(&value.identifier.identifier_string)?
+            .clone();
+        let identifier = &value.identifier;
+
+        let passed_args = value
+            .arg_list
+            .map_or(Vec::new(), |expression| expression.expr_list);
+
+        if passed_args.len() != proc_sig.0.len() {
+            return Err(SemanticsError::ParamCountMismatch(
+                passed_args.len(),
+                proc_sig.0.len(),
+            ));
+        }
+        let args = passed_args
+            .into_iter()
+            .zip(proc_sig.0.into_iter())
+            .map(move |(passed_arg, sig_arg)| {
+                let expression = AnalyzedExpression::analyze_expression(passed_arg, context)?;
+                let exp_type = expression.get_type(context)?;
+                if exp_type != sig_arg.1 {
+                    Err(SemanticsError::TypeMismatch(exp_type, sig_arg.1))
+                } else {
+                    Ok(expression)
+                }
+            })
+            .collect::<Result<Vec<AnalyzedExpression>, SemanticsError>>()?;
+
+        Ok(AnalyzedProcedureCall {
+            identifier: identifier.identifier_string.clone(),
+            arg_list: args,
+            ret_type: proc_sig.1,
+        })
+    }
+
+    fn get_type(&self, context: &Context) -> Result<Type, SemanticsError> {
+        Ok(self.ret_type.clone())
     }
 }
