@@ -1,7 +1,11 @@
+use std::num::{ParseFloatError, ParseIntError};
+
 use thiserror::Error;
 
 pub mod context;
+pub mod declaration;
 pub mod expression;
+pub mod procedure;
 pub mod statement;
 pub mod traits;
 pub mod value;
@@ -25,6 +29,11 @@ pub enum SemanticsError {
     IndexOnNonArray(String),
     #[error("Encountered return when none was expected.")]
     UnexpectedReturn,
+
+    #[error(transparent)]
+    InvalidIntLiteral(#[from] ParseIntError),
+    #[error(transparent)]
+    InvalidFloatLiteral(#[from] ParseFloatError),
 }
 
 #[derive(Debug)]
