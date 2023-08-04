@@ -16,6 +16,8 @@ enum CompilerError {
     ScannerError(#[from] scanner::ScannerError),
     #[error(transparent)]
     ParserError(#[from] parser::utils::ParserError),
+    #[error(transparent)]
+    SemanticsError(#[from] semantics::SemanticsError),
 }
 
 fn main() -> Result<(), CompilerError> {
@@ -31,6 +33,9 @@ fn compile_file(file_path: &Path) -> Result<(), CompilerError> {
     let scanner_result = scanner::scan(file_contents)?;
     let token_deque = VecDeque::from(scanner_result);
     let program_struct = parser::parse_tokens(token_deque)?;
+    let anayzed_program = semantics::AnalyzedProgram::analyze(program_struct)?;
+    println!("{:?}", anayzed_program);
+
     Ok(())
 }
 

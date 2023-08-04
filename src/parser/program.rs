@@ -5,8 +5,8 @@ use crate::tokens::Token;
 
 #[derive(Debug)]
 pub struct ProgramStruct {
-    program_header: ProgramHeader,
-    program_body: ProgramBody,
+    pub program_header: ProgramHeader,
+    pub program_body: ProgramBody,
 }
 
 impl ParseTokens for ProgramStruct {
@@ -32,7 +32,7 @@ impl ParseTokens for ProgramStruct {
 
 #[derive(Debug)]
 pub struct ProgramHeader {
-    header_identifier: String,
+    pub header_identifier: String,
 }
 
 impl ParseTokens for ProgramHeader {
@@ -47,8 +47,8 @@ impl ParseTokens for ProgramHeader {
 
 #[derive(Debug)]
 pub struct ProgramBody {
-    declarations: Vec<Declaration>,
-    statements: Vec<Statement>,
+    pub declarations: Vec<Declaration>,
+    pub statements: Vec<Statement>,
 }
 
 impl ParseTokens for ProgramBody {

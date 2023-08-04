@@ -12,7 +12,10 @@ pub mod value;
 
 use crate::parser::program::ProgramStruct;
 
-use self::context::{Context, ScopeContext};
+use self::context::{Context, Scope, ScopeContext};
+use self::procedure::AnalyzedProcedure;
+use self::statement::AnalyzedBlock;
+use self::traits::Analyze;
 use self::value::Type;
 
 #[derive(Debug, Error)]
@@ -48,13 +51,33 @@ pub enum SemanticsError {
 pub struct AnalyzedProgram {
     pub name: String,
     pub declarations: ScopeContext,
-    pub procedures: Vec<()>,
-    pub block: (),
+    pub procedures: Vec<AnalyzedProcedure>,
+    pub block: AnalyzedBlock,
 }
 
 impl AnalyzedProgram {
-    pub fn analyze(val: ProgramStruct) -> Result<Self, SemanticsError> {
+    pub fn analyze(program: ProgramStruct) -> Result<Self, SemanticsError> {
         let mut context = Context::new();
-        todo!()
+
+        let name = program.program_header.header_identifier;
+        let mut procedures = Vec::new();
+
+        for declaration in program.program_body.declarations {
+            if let Some(procedure) = declaration.analyze(&mut context, &Scope::Global)? {
+                procedures.push(procedure);
+            }
+        }
+
+        let block = program
+            .program_body
+            .statements
+            .analyze(&mut context, &Scope::Local)?;
+
+        Ok(AnalyzedProgram {
+            name,
+            declarations: context.into_global(),
+            procedures,
+            block,
+        })
     }
 }
