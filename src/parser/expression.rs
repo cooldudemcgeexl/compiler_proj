@@ -165,7 +165,7 @@ impl ParseTokens for Factor {
         match tokens.pop_front() {
             Some(Token::LParen) => {
                 let expression = Expression::parse(tokens)?;
-                tokens.consume_expected(Token::Return)?;
+                tokens.consume_expected(Token::RParen)?;
                 Ok(Factor::NestedExpression(Box::new(expression)))
             }
             Some(Token::True) => Ok(Factor::TrueLit),
