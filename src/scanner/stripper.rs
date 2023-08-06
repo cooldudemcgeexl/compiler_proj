@@ -23,7 +23,10 @@ pub enum StripState {
 }
 
 #[derive(Error, Debug)]
-pub enum StripError {}
+pub enum StripError {
+    #[error("Reached max block comment nesting depth. Why?")]
+    MaxCommentDepth,
+}
 
 pub fn strip_comments(file_str: String) -> Result<String, StripError> {
     let mut ret_str = String::with_capacity(file_str.capacity()); // Make a blank string with the same size as the original
@@ -54,17 +57,16 @@ pub fn strip_comments(file_str: String) -> Result<String, StripError> {
             (_, StripState::LineComment) => StripState::LineComment,
 
             ('/', StripState::BlockComment(n)) => StripState::BlockCommentSlash(n),
-            ('*',StripState::BlockComment(n)) => StripState::BlockCommentStar(n),
+            ('*', StripState::BlockComment(u8::MAX)) => return Err(StripError::MaxCommentDepth),
+            ('*', StripState::BlockComment(n)) => StripState::BlockCommentStar(n),
             (_, StripState::BlockComment(n)) => StripState::BlockComment(n),
 
+            ('*', StripState::BlockCommentSlash(n)) => StripState::BlockComment(n + 1),
+            (_, StripState::BlockCommentSlash(n)) => StripState::BlockComment(n),
 
-            ('*', StripState::BlockCommentSlash(n)) => StripState::BlockComment(n+1),
-            (_,StripState::BlockCommentSlash(n)) => StripState::BlockComment(n),
-            
-            ('/',StripState::BlockCommentStar(1)) => StripState::Normal,
-            ('/',StripState::BlockCommentStar(n)) => StripState::BlockComment(n-1),
-            (_,StripState::BlockCommentStar(n)) => StripState::BlockComment(n),
-
+            ('/', StripState::BlockCommentStar(1)) => StripState::Normal,
+            ('/', StripState::BlockCommentStar(n)) => StripState::BlockComment(n - 1),
+            (_, StripState::BlockCommentStar(n)) => StripState::BlockComment(n),
         }
     }
 
@@ -81,25 +83,15 @@ enum StripTestError {
 }
 #[cfg(test)]
 use rstest::rstest;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{fs, io};
 #[cfg(test)]
 #[rstest]
-#[case("iterativeFib.src")]
-#[case("logicals.src")]
-#[case("math.src")]
-#[case("multipleProcs.src")]
-#[case("recursiveFib.src")]
-#[case("source.src")]
-#[case("test_heap.src")]
-#[case("test_program_minimal.src")]
-#[case("test1.src")]
-#[case("test1b.src")]
-#[case("test2.src")]
-fn strip_comment_test(#[case] file_name: String) -> Result<(), StripTestError> {
-    let source_name = format!("tests/correct/{file_name}");
-    let source_file = Path::new(source_name.as_str());
 
+fn strip_comment_test(
+    #[files("tests/correct/*.src")] source_file: PathBuf,
+) -> Result<(), StripTestError> {
+    let file_name = source_file.file_name().unwrap().to_str().unwrap();
     let stripped_name = format!("tests/comment_stripped/{file_name}");
     let stripped_file = Path::new(stripped_name.as_str());
 

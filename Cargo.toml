@@ -1,5 +1,5 @@
 [package]
-name = "compiler_proj"
+name = "crust"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,3 +10,8 @@ thiserror = "1.0.44"
 
 [dev-dependencies]
 rstest = "0.18.1"
+
+[package.metadata.deb]
+license-file =["LICENSE","1"]
+copyright = "none"
+maintainer = "Nick Lay"
