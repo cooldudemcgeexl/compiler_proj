@@ -5,7 +5,9 @@ mod scanner;
 mod semantics;
 mod tokens;
 use std::collections::VecDeque;
-use std::{fs, io, path::Path};
+use std::path::Path;
+use std::process::exit;
+use std::{env, fs, io};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -18,13 +20,68 @@ enum CompilerError {
     ParserError(#[from] parser::utils::ParserError),
     #[error(transparent)]
     SemanticsError(#[from] semantics::SemanticsError),
+    #[error(transparent)]
+    ArgumentError(#[from] ArgumentError),
+}
+#[derive(Error, Debug)]
+enum ArgumentError {
+    #[error("Expected at least one file argument to compile, but found none!")]
+    NoArguments,
+    #[error(
+        "Expected input file and optional output file argument, but found more than 2 arguments!"
+    )]
+    TooManyArguments,
+    #[error("Input file does not exist")]
+    FileDoesNotExist,
+}
+fn main() {
+    let main_result = run_comp();
+    if let Err(err) = main_result {
+        eprintln!("{}", err);
+        exit(1)
+    }
 }
 
-fn main() -> Result<(), CompilerError> {
-    let file_path = Path::new("tests/correct/test1.src");
-    compile_file(file_path)?;
+fn run_comp() -> Result<(), CompilerError> {
+    let (parsed_input, parsed_output) = parse_args()?;
 
+    let main_result = compile_file(&parsed_input)?;
     Ok(())
+}
+
+fn parse_args() -> Result<(PathBuf, PathBuf), ArgumentError> {
+    let mut args = env::args().skip(1);
+    let input_filename_opt = args.next();
+    let output_filename_opt = args.next();
+
+    let input_path = match input_filename_opt {
+        None => return Err(ArgumentError::NoArguments),
+        Some(input_filename) => PathBuf::from(input_filename),
+    };
+    if args.len() > 0 {
+        return Err(ArgumentError::TooManyArguments);
+    }
+    if !input_path.is_file() {
+        return Err(ArgumentError::FileDoesNotExist);
+    }
+
+    let output_path = match output_filename_opt {
+        Some(output_filename) => {
+            let mut output_path = PathBuf::from(output_filename);
+            if output_path.is_dir() {
+                // This can be unwrapped, since we checked that `input_path` is a file earlier.
+                output_path.push(input_path.file_name().unwrap());
+            }
+            output_path
+        }
+        None => {
+            let mut output_path = input_path.clone();
+            output_path.set_extension("out");
+            output_path
+        }
+    };
+
+    Ok((input_path, output_path))
 }
 
 fn compile_file(file_path: &Path) -> Result<(), CompilerError> {
