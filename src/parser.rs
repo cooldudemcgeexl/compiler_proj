@@ -8,13 +8,13 @@ use self::{
     utils::{ParserError, TokenQueue},
 };
 
-mod declaratons;
-mod expression;
-mod procedure;
-mod program;
-mod statement;
+pub mod declaratons;
+pub mod expression;
+pub mod procedure;
+pub mod program;
+pub mod statement;
 pub mod traits;
-mod types;
+pub mod types;
 pub mod utils;
 
 pub fn parse_tokens(token_deque: VecDeque<Token>) -> Result<ProgramStruct, ParserError> {

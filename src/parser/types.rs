@@ -1,5 +1,6 @@
 use super::traits::ParseTokens;
 use super::utils::ParserError;
+use crate::semantics::SemanticsError;
 use crate::tokens::Token;
 
 #[derive(Debug)]
@@ -56,6 +57,27 @@ impl ParseTokens for Number {
     }
 }
 
+impl TryFrom<Number> for usize {
+    type Error = SemanticsError;
+    fn try_from(value: Number) -> Result<Self, Self::Error> {
+        let value = value.literal_string.replace("_", "");
+        Ok(usize::from_str_radix(&value, 10)?)
+    }
+}
+impl TryFrom<Number> for i64 {
+    type Error = SemanticsError;
+    fn try_from(value: Number) -> Result<Self, Self::Error> {
+        let value = value.literal_string.replace("_", "");
+        Ok(i64::from_str_radix(&value, 10)?)
+    }
+}
+impl TryFrom<Number> for f64 {
+    type Error = SemanticsError;
+    fn try_from(value: Number) -> Result<Self, Self::Error> {
+        let value = value.literal_string.replace("_", "");
+        Ok(value.parse::<f64>()?)
+    }
+}
 #[derive(Debug)]
 pub struct StringNode {
     pub literal_string: String,
